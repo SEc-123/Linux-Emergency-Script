@@ -1,142 +1,88 @@
-# Linux Emergency Response Script
+Linux Incident Response & Analysis Scripts
+This repository contains two scripts designed for quick incident response and system auditing on Linux systems:
 
-This script provides an automated solution for Linux incident response and forensic analysis. It collects critical system information, analyzes logs, monitors processes and networks, detects suspicious files, and audits user activities. The results are compiled into a `.doc` report for easy sharing and further investigation.
+ubuntu_incident_report.sh: Intended for Ubuntu/Debian-based distributions.
+centos_incident_report.sh: Intended for CentOS/RHEL-based distributions.
+Both scripts collect various system details, analyze logs, scan for suspicious files, and perform user activity audits.
 
----
+Table of Contents
+Overview
+Prerequisites
+Usage
+Ubuntu Script
+CentOS Script
+Main Features
+Report Output
+Notes and Caveats
+Future Enhancements
+License & Disclaimer
+Overview
+These scripts are designed to assist system administrators and security teams in performing a quick incident response or security audit on Linux servers. Key functionalities include:
 
-## Features
+Collecting basic system information (hostname, IP, kernel version, logged-in users, etc.).
+Analyzing relevant log files (e.g., /var/log/syslog and /var/log/auth.log on Ubuntu; /var/log/messages and /var/log/secure on CentOS).
+Listing recently modified files, SUID/SGID files, and large files that could be suspicious.
+Checking running processes and open network connections.
+Auditing user activities (recent logins, failed logins, user additions/modifications).
+Prerequisites
+Root Privileges
+Most log files and system commands require elevated privileges. Make sure to run these scripts as root (or via sudo).
+Pandoc (Optional)
+If Pandoc is installed, the script can convert the report to .doc (or .docx) format. Otherwise, it will generate a .txt file.
+Usage
+After cloning or downloading this repository, choose the appropriate script for your distribution.
 
-### 1. System Information Collection
-- Collects essential system details like:
-  - Hostname
-  - IP address
-  - Kernel version
-  - Current logged-in users
+Ubuntu Script
+Make it executable:
+bash
+Copy
+chmod +x ubuntu_incident_report.sh
+Run as root:
+bash
+Copy
+sudo ./ubuntu_incident_report.sh
+Specify time range: You’ll be prompted for a time range (in days), defaulting to 1 day. Enter any integer you like, or just press Enter for the default.
+CentOS Script
+Make it executable:
+bash
+Copy
+chmod +x centos_incident_report.sh
+Run as root:
+bash
+Copy
+sudo ./centos_incident_report.sh
+Specify time range: Similar prompt for the number of days (default is 1).
+Main Features
+System Information
+Distribution, hostname, IP address, kernel version, current user, logged-in users.
+Log Analysis
+Ubuntu: Parses /var/log/syslog, /var/log/auth.log, and, if available, uses journalctl to retrieve logs from the last n days.
+CentOS: Parses /var/log/messages, /var/log/secure, and optionally uses journalctl if available.
+Processes & Network
+Lists processes sorted by CPU usage (top 10).
+Checks open network connections via netstat or ss.
+Suspicious File Detection
+Finds recently modified files within the specified days.
+Locates SUID/SGID files and large files (>100MB).
+Supports excluding certain directories to reduce I/O (e.g., /proc, /sys, /dev).
+User Activity Audit
+Shows recent login attempts, failed logins, and user creation/modification records.
+Report Output
+Default Filename: incident_report_YYYYMMDDHHMMSS, where the timestamp is auto-generated.
+File Format:
+If pandoc is installed, the script produces a .doc (or .docx if you change the extension).
+Otherwise, it falls back to a .txt file.
+Contents:
+Includes all captured audit data during script execution.
+For secure environments, consider transferring or archiving the report securely (e.g., upload to a security dashboard, encrypt the file, or store it offline).
 
-### 2. Log Analysis
-- Analyzes key system and authentication logs:
-  - `/var/log/syslog`
-  - `/var/log/auth.log` (or `/var/log/secure` for RHEL-based systems)
-- Extracts logs from the last customizable time range (default: 1 day).
-
-### 3. Process and Network Monitoring
-- Monitors running processes, including:
-  - Top 10 CPU-intensive processes
-  - Open network ports and connections (using `netstat`).
-
-### 4. Suspicious File Detection
-- Identifies potentially malicious files:
-  - Recently modified files (within the custom time range).
-  - Files with SUID/SGID permissions.
-  - Large files (over 100MB).
-
-### 5. User Activity Audit
-- Audits user behavior by analyzing:
-  - Recent login attempts.
-  - Failed login attempts.
-  - Recently added or modified users.
-
-### 6. Customizable Time Range
-- Allows users to define the time range for log and file analysis at runtime.
-
-### 7. Report Generation
-- Automatically generates a `.doc` report using `pandoc` for seamless documentation and sharing.
-
----
-
-## Requirements
-
-### Software Dependencies
-- **Linux OS**: Compatible with most distributions (Debian, Ubuntu, CentOS, RHEL).
-- **Required tools**:
-  - `pandoc`: For generating `.doc` reports.
-  - `net-tools`: For network monitoring.
-
-### Installation
-Install the required tools using the following commands:
-
-For Debian/Ubuntu:
-```bash
-sudo apt-get update
-sudo apt-get install pandoc net-tools -y
-```
-
-For CentOS/RHEL:
-```bash
-sudo yum update
-sudo yum install pandoc net-tools -y
-```
-
----
-
-## Usage
-
-### Running the Script
-1. Save the script as `linux_emergency_response.sh`.
-2. Make the script executable:
-   ```bash
-   chmod +x linux_emergency_response.sh
-   ```
-3. Run the script with `sudo`:
-   ```bash
-   sudo ./linux_emergency_response.sh
-   ```
-4. When prompted, specify the time range (in days) for analysis or press `Enter` to use the default (1 day).
-
-### Example Output
-- The script generates a report file in the current directory named:
-  ```
-  incident_report_YYYYMMDDHHMMSS.doc
-  ```
-- Open the report using a compatible word processor (e.g., Microsoft Word or LibreOffice).
-
----
-
-## Error Handling
-
-- **Permission Errors**:
-  - Ensure the script is run with `sudo`.
-
-- **Missing Tools**:
-  - Install dependencies like `pandoc` and `net-tools`.
-
-- **File or Log Unavailability**:
-  - The script handles missing files gracefully by logging errors in the report.
-
----
-
-## Customization
-
-### Default Time Range
-- Modify the `DEFAULT_TIME_RANGE` variable in the script to set a different default value:
-  ```bash
-  DEFAULT_TIME_RANGE=3
-  ```
-
-### Additional Log Paths
-- Add new log paths in the `Log Analysis` section of the script by extending the existing code.
-
----
-
-## Limitations
-
-1. The script may generate high disk I/O when scanning large directories or entire file systems.
-2. Logs outside the specified time range will not be included.
-3. Requires `pandoc` for generating `.doc` reports.
-
----
-
-## Future Enhancements
-
-1. **Real-time Monitoring**:
-   - Integrate tools like `inotify` for real-time log and file monitoring.
-2. **Advanced Log Parsing**:
-   - Add support for JSON and XML log formats.
-3. **Remote Reporting**:
-   - Upload reports to a central server or email them automatically.
-
----
-
-## Disclaimer
-This script is intended for educational and diagnostic purposes. Ensure proper authorization before running it in production environments.
-
+Notes and Caveats
+High Disk I/O:
+Scanning large directories (especially /) can lead to heavy disk usage. Adjust SCAN_DIRS or exclude unnecessary paths to reduce overhead.
+Time Range Limit:
+By default, logs and file searches are constrained by $TIME_RANGE days. If you need more complex date handling (like multi-day ranges), modify or extend the logic for parsing log dates (journalctl --since=... --until=...) or use more advanced date matching.
+Distribution Compatibility:
+Scripts are tailored for Ubuntu (or Debian-based) and CentOS (or RHEL-based).
+On minimal installations, commands like lsb_release or journalctl may be missing—install or comment out related parts as necessary.
+Permission Requirements:
+Running as root is critical to access restricted logs and system information.
